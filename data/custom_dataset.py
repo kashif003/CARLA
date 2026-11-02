@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import Dataset
 from scipy.spatial.distance import euclidean
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 """ 
     AugmentedDataset

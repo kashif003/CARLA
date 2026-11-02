@@ -7,7 +7,9 @@ from torch.utils.data import Dataset
 from utils.mypath import MyPath
 import ast
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+import torch
 
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 class SWAT(Dataset):
     """`SMD <https://www>`_ Dataset.
@@ -42,7 +44,7 @@ class SWAT(Dataset):
 
         file_path = os.path.join(self.root, fname)
         temp = pd.read_csv(file_path)
-        labels = np.asarray(temp['attack'])
+        labels = np.asarray(temp['label'])
         temp = np.asarray(temp.iloc[:, 1:52])
 
         if np.any(sum(np.isnan(temp))!=0):

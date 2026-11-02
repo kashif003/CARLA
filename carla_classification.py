@@ -28,7 +28,7 @@ def set_seed(seed):
 
 set_seed(4)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 FLAGS = argparse.ArgumentParser(description='classification Loss')
 FLAGS.add_argument('--config_env', help='Location of path config file')
@@ -130,7 +130,6 @@ def main():
 
     # Model
     model = get_model(p, p['pretext_model'])
-    model = torch.nn.DataParallel(model)
     model = model.to(device)
 
     # Optimizer
@@ -149,7 +148,12 @@ def main():
     if os.path.exists(p['classification_checkpoint']):
         print(colored('-- Model initialised from last checkpoint: {}'.format(p['classification_checkpoint']), 'green'))
         checkpoint = torch.load(p['classification_checkpoint'], map_location='cpu')
-        model.load_state_dict(checkpoint['model'])
+        state_dict = checkpoint['model']
+        state_dict = {
+            key.removeprefix('module.'): value
+            for key, value in state_dict.items()
+        }
+        model.load_state_dict(state_dict)
         optimizer.load_state_dict(checkpoint['optimizer'])
         start_epoch = checkpoint['epoch']
         best_loss = checkpoint['best_loss']
@@ -195,14 +199,14 @@ def main():
             best_f1 = rep_f1
             nomral_label = majority_label
             # print('New Checkpoint ...')
-            torch.save({'model': model.module.state_dict(), 'head': best_loss_head, 'normal_label': normal_label}, p['classification_model'])
+            torch.save({'model': model.state_dict(), 'head': best_loss_head, 'normal_label': normal_label}, p['classification_model'])
             torch.save({'optimizer': optimizer.state_dict(), 'model': model.state_dict(),
                         'epoch': epoch + 1, 'best_loss': best_loss, 'best_loss_head': best_loss_head, 'normal_label': normal_label},
                        p['classification_checkpoint'])
 
 
     model_checkpoint = torch.load(p['classification_model'], map_location='cpu')
-    model.module.load_state_dict(model_checkpoint['model'])
+    model.load_state_dict(model_checkpoint['model'])
     torch.save({'optimizer': optimizer.state_dict(), 'model': model.state_dict(),
                 'epoch': p['epochs'], 'best_loss': best_loss, 'best_loss_head': best_loss_head, 'normal_label': normal_label},
                p['classification_checkpoint'])

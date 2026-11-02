@@ -4,7 +4,7 @@ import numpy as np
 from torch import Tensor
 
 from utils.utils import AverageMeter, ProgressMeter
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def pretext_train(train_loader, model, criterion, optimizer, epoch, prev_loss, device='cuda'):
 

@@ -134,4 +134,4 @@ class TSRepository(object):
         self.to('cpu')
 
     def cuda(self):
-        self.to('cuda:0')
+        self.to('cuda:6')

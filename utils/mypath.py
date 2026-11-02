@@ -17,9 +17,9 @@ class MyPath(object):
         elif database == 'smd':
             return '/home/zahraz/hz18_scratch/zahraz/datasets/SMD'
         elif database == 'swat':
-            return '/home/zahraz/hz18_scratch/zahraz/datasets/SWAT'
+            return "/home/jovyan/anomaly_benchmarks/datasets/SWAT" #TODO changed this location
         elif database == 'wadi':
-            return '/home/zahraz/hz18_scratch/zahraz/datasets/WADI'
+            return '/home/zahraz/hz18_scratch/zahraz/datasets/WADI' #TODO need to change this location as well.
         elif database == 'kpi':
             return '/home/zahraz/hz18_scratch/zahraz/datasets/KPI'
         elif database == 'swan':
