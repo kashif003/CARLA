@@ -1,0 +1,7 @@
+nohup: ignoring input
+Traceback (most recent call last):
+  File "/home/jovyan/anomaly_benchmarks/CARLA/carla_pretext.py", line 6, in <module>
+    from utils.mypath import MyPath
+  File "/home/jovyan/anomaly_benchmarks/CARLA/utils/mypath.py", line 1, in <module>
+    x
+NameError: name 'x' is not defined

@@ -1,0 +1,38 @@
+nohup: ignoring input
+CARLA Pretext stage -->
+Dataset contains 99160/44971 train/val samples
+Pretext model found. Skipping training.
+Fill TS Repository for mining the nearest/furthest neighbors (train) ...
+Fill TS Repository [0/1984]
+Fill TS Repository [100/1984]
+Fill TS Repository [200/1984]
+Fill TS Repository [300/1984]
+Fill TS Repository [400/1984]
+Fill TS Repository [500/1984]
+Fill TS Repository [600/1984]
+Fill TS Repository [700/1984]
+Fill TS Repository [800/1984]
+Fill TS Repository [900/1984]
+Fill TS Repository [1000/1984]
+Fill TS Repository [1100/1984]
+Fill TS Repository [1200/1984]
+Fill TS Repository [1300/1984]
+Fill TS Repository [1400/1984]
+Fill TS Repository [1500/1984]
+Fill TS Repository [1600/1984]
+Fill TS Repository [1700/1984]
+Fill TS Repository [1800/1984]
+Fill TS Repository [1900/1984]
+Mine the nearest neighbors (Top-10)
+Fill TS Repository for mining the nearest/furthest neighbors (val) ...
+Fill TS Repository [0/900]
+Fill TS Repository [100/900]
+Fill TS Repository [200/900]
+Fill TS Repository [300/900]
+Fill TS Repository [400/900]
+Fill TS Repository [500/900]
+Fill TS Repository [600/900]
+Fill TS Repository [700/900]
+Fill TS Repository [800/900]
+Mine the nearest and furthest neighbors (Top-10)
+CARLA pretext stage completed successfully.
