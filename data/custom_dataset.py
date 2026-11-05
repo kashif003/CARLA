@@ -67,10 +67,11 @@ class AugmentedDataset(Dataset):
             sstd = torch.where(sstd == 0.0, torch.tensor(1.0, device=sstd.device), sstd) #CUDA!
 
             self.samples[index] = {
-                'ts_org': (ts_org - mmean) / sstd,
-                'ts_w_augment': (ts_w_augment - mmean) / sstd,
-                'ts_ss_augment':  (ts_ss_augment - mmean) / sstd,
-                'target': ts_trg
+                # compute on GPU, store on CPU (keeps GPU memory small)
+                'ts_org': ((ts_org - mmean) / sstd).cpu(),
+                'ts_w_augment': ((ts_w_augment - mmean) / sstd).cpu(),
+                'ts_ss_augment':  ((ts_ss_augment - mmean) / sstd).cpu(),
+                'target': ts_trg.cpu()
                 # 'ts_org': (ts_org - min_data) / range_val,
                 # 'ts_w_augment': (ts_w_augment - min_data) / range_val,
                 # 'ts_ss_augment':  (ts_ss_augment - min_data) / range_val,
@@ -106,7 +107,7 @@ class NeighborsDataset(Dataset):
             self.neighbor_transform = transform
        
         dataset.transform = None
-        all_data = dataset.data.to(device)
+        all_data = dataset.data  # keep on CPU; batches are moved to GPU in train/eval
         self.dataset = dataset
 
         NN_indices = N_indices.copy() # Nearest neighbor indices (np.array  [len(dataset) x k])
@@ -116,8 +117,6 @@ class NeighborsDataset(Dataset):
             self.FN_indices = FN_indices[:, -p['num_neighbors']:]
         #assert( int(self.indices.shape[0]/4) == len(self.dataset) )
 
-        self.dataset.data = dataset.data.to(device)
-        self.dataset.targets = dataset.targets.to(device)
         num_samples = self.dataset.data.shape[0]
         NN_index = np.array([np.random.choice(self.NN_indices[i], 1)[0] for i in range(num_samples)])
         FN_index = np.array([np.random.choice(self.FN_indices[i], 1)[0] for i in range(num_samples)])
