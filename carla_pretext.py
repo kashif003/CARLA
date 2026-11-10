@@ -33,7 +33,7 @@ def main():
     p = create_config(args.config_env, args.config_exp, args.fname)
 
     model = get_model(p)
-    # model = model.cuda()
+    if torch.cuda.is_available(): model = model.cuda()  # GPU if visible
    
     # CUDNN
     # torch.backends.cudnn.benchmark = True

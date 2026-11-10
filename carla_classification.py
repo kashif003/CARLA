@@ -133,7 +133,7 @@ def main():
     # Model
     model = get_model(p, p['pretext_model'])
     model = torch.nn.DataParallel(model)
-    model = model #.cuda()
+    if torch.cuda.is_available(): model = model.cuda()  # GPU if visible (DataParallel needs it on cuda:0)
 
     # Optimizer
     optimizer = get_optimizer(p, model, p['update_cluster_head_only'])
