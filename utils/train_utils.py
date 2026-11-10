@@ -44,7 +44,7 @@ def pretext_train(train_loader, model, criterion, optimizer, epoch):
         if i % 10 == 0:
             progress.display(i)
 
-        return loss
+    return loss  # was inside the loop (trained 1 batch/epoch); fixed upstream in 600d4f2
 
 
 def self_sup_classification_train(train_loader, model, criterion, optimizer, epoch, update_cluster_head_only=False):
