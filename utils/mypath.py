@@ -17,7 +17,7 @@ class MyPath(object):
         elif database == 'smd':
             return 'datasets/SMD'
         elif database == 'swat':
-            return 'datasets/SWAT'
+            return '/home/jovyan/anomaly_benchmarks/datasets/SWAT'
         elif database == 'wadi':
             return 'datasets/WADI'
         elif database == 'kpi':

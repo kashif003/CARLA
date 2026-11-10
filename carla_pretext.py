@@ -170,7 +170,7 @@ def main():
     # Checkpoint
     if os.path.exists(p['pretext_checkpoint']):
         print(colored('Restart from checkpoint {}'.format(p['pretext_checkpoint']), 'blue'))
-        checkpoint = torch.load(p['pretext_checkpoint'], map_location='cpu')
+        checkpoint = torch.load(p['pretext_checkpoint'], map_location='cpu', weights_only=False)
         optimizer.load_state_dict(checkpoint['optimizer'])
         model.load_state_dict(checkpoint['model'])
         # model.cuda()
@@ -203,7 +203,7 @@ def main():
             torch.save(model.state_dict(), p['pretext_model'])
 
     # Save final model
-    checkpoint = torch.load(p['pretext_checkpoint'], map_location='cpu')
+    checkpoint = torch.load(p['pretext_checkpoint'], map_location='cpu', weights_only=False)
     optimizer.load_state_dict(checkpoint['optimizer'])
     model.load_state_dict(checkpoint['model'])
     torch.save({'optimizer': optimizer.state_dict(), 'model': model.state_dict(),
