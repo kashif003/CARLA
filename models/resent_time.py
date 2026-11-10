@@ -119,4 +119,5 @@ class ResNetRepresentation(nn.Module):
         return z
 
 def resnet_ts(**kwargs):
-    return {'backbone': ResNetRepresentation(**kwargs, in_channels=55, mid_channels=4), 'dim': 8}
+    # was hard-coded to in_channels=55 (MSL); use the config's res_kwargs (upstream fix 934bf65)
+    return {'backbone': ResNetRepresentation(**kwargs), 'dim': kwargs['mid_channels']*2}

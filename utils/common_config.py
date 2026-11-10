@@ -37,7 +37,7 @@ def get_model(p, pretrain_path=None):
     # Get backbone
     if p['backbone'] == 'resnet_ts':
         from models.resent_time import resnet_ts
-        backbone = resnet_ts()
+        backbone = resnet_ts(**p['res_kwargs'])
 
     else:
         raise ValueError('Invalid backbone {}'.format(p['backbone']))
