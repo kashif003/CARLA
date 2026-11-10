@@ -2,7 +2,7 @@
 import torch
 import numpy as np
 import collections
-from torch._six import string_classes
+string_classes = (str, bytes)  # torch._six removed in torch 2.0
 
 
 """ Custom collate function """
