@@ -22,6 +22,7 @@ class ContrastiveModel(nn.Module):
             raise ValueError('Invalid head {}'.format(head))
 
     def forward(self, x):
+        x = x.to(next(self.parameters()).device)
         features = self.backbone(x)
         features = self.contrastive_head(features)
         features = F.normalize(features, dim = 1)
@@ -39,6 +40,7 @@ class ClusteringModel(nn.Module):
         self.cluster_head = nn.ModuleList([nn.Linear(self.backbone_dim, nclusters) for _ in range(self.nheads)])
 
     def forward(self, x, forward_pass='default'):
+        x = x.to(next(self.parameters()).device)
         if forward_pass == 'default':
             features = self.backbone(x)
             out = [cluster_head(features) for cluster_head in self.cluster_head]

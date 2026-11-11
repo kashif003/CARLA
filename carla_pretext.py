@@ -34,7 +34,7 @@ def main():
 
     model = get_model(p)
     best_model = None
-    # model = model.cuda()
+    if torch.cuda.is_available(): model = model.cuda()  # GPU if visible
    
     # CUDNN
     # torch.backends.cudnn.benchmark = True
@@ -171,7 +171,7 @@ def main():
     # Checkpoint
     if os.path.exists(p['pretext_checkpoint']):
         print(colored('Restart from checkpoint {}'.format(p['pretext_checkpoint']), 'blue'))
-        checkpoint = torch.load(p['pretext_checkpoint'], map_location='cpu')
+        checkpoint = torch.load(p['pretext_checkpoint'], map_location='cpu', weights_only=False)
         optimizer.load_state_dict(checkpoint['optimizer'])
         model.load_state_dict(checkpoint['model'])
         # model.cuda()

@@ -42,7 +42,7 @@ class SWAT(Dataset):
 
         file_path = os.path.join(self.root, fname)
         temp = pd.read_csv(file_path)
-        labels = np.asarray(temp['attack'])
+        labels = np.asarray(temp['label'])
         temp = np.asarray(temp.iloc[:, 1:52])
 
 
