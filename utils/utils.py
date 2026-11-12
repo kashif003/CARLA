@@ -63,8 +63,9 @@ def fill_ts_repository(p, loader, model, ts_repository, real_aug=False, ts_repos
     if real_aug:
         ts_repository.resize(3)
 
-    con_data = torch.tensor([])
-    con_target = torch.tensor([])
+    # collect in lists and concatenate once (repeated torch.cat was O(n^2): days at stride 1)
+    con_data = []
+    con_target = []
     for i, batch in enumerate(loader):
         ts_org = batch['ts_org'] #.cuda(non_blocking=True)
         targets = batch['target'] #.cuda(non_blocking=True)
@@ -82,8 +83,8 @@ def fill_ts_repository(p, loader, model, ts_repository, real_aug=False, ts_repos
             print('Fill TS Repository [%d/%d]' %(i, len(loader)))
 
         if real_aug:
-            con_data = torch.cat((con_data, ts_org), dim=0)
-            con_target = torch.cat((con_target, torch.from_numpy(targets).float()), dim=0)
+            con_data.append(ts_org)
+            con_target.append(torch.from_numpy(targets).float())
 
             ts_w_augment = batch['ts_w_augment']  # .cuda(non_blocking=True)
             targets = torch.LongTensor([2]*ts_w_augment.shape[0])
@@ -96,14 +97,16 @@ def fill_ts_repository(p, loader, model, ts_repository, real_aug=False, ts_repos
             ts_ss_augment = batch['ts_ss_augment']  # .cuda(non_blocking=True)
             targets = torch.LongTensor([4]*ts_ss_augment.shape[0])
             ts_ss_augment = torch.from_numpy(ts_ss_augment).float()
-            con_data = torch.cat((con_data, ts_ss_augment), dim=0)
-            con_target = torch.cat((con_target, targets), dim=0)
+            con_data.append(ts_ss_augment)
+            con_target.append(targets)
             output = model(ts_ss_augment.reshape(b, h, w))
             ts_repository.update(output, targets)
             ts_repository_aug.update(output, targets)
 
 
     if real_aug:
+        con_data = torch.cat(con_data, dim=0)
+        con_target = torch.cat(con_target, dim=0)
         con_dataset = SaveAugmentedDataset(con_data, con_target)
         con_loader = torch.utils.data.DataLoader(con_dataset, num_workers=p['num_workers'],
                                                  batch_size=p['batch_size'], pin_memory=True,
