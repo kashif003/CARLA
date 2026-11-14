@@ -70,39 +70,44 @@ class TSRepository(object):
         else:
             return k_furthest_neighbours, k_nearest_neighbours
 
-    def furthest_nearest_neighbors(self, topk):
-        features = self.features
+    def furthest_nearest_neighbors(self, topk, chunk=50000):
+        """Per-sample k nearest and k furthest neighbours in representation space,
+        as described in the paper (Sec. 3.2).
 
-        # # Compute pairwise distances
-        # distances = torch.cdist(features, features)
-        #
-        # # Find indices of k nearest neighbors for each feature
-        # _, nearest_indices = distances.topk(topk + 1, largest=False, dim=1)
-        # k_nearest_neighbours = nearest_indices[:, 1:]  # exclude self as nearest neighbor
-        #
-        # # Find indices of k furthest neighbors for each feature
-        # _, furthest_indices = distances.topk(topk, largest=True, dim=1)
-        # k_furthest_neighbours = furthest_indices[:, :]
+        The released code ranked all samples by distance to ONE random query
+        vector and paired sample i with rank i (upstream issue #8), so the
+        "neighbours" were unrelated to the anchor and classification collapsed.
 
-        # index = nmslib.init(method='hnsw', space='12')
-        # index.addDataPointBatch(features)
-        # index.createIndex({'post':2}, prin_progress = True)
-        # ids , distances = index.knnQueryBatch(features, k=len(features), num_threads=4)
-        #
-        # k_furthest_neighbours = ids[:, -1:]
-        # k_nearest_neighbours = ids[:, 1:]
+        Returns (k_furthest, k_nearest), each int64 [N, topk]:
+          k_nearest[i]  : nearest first, excluding i itself
+          k_furthest[i] : ordered so the LAST column is the furthest
+        (NeighborsDataset uses N[:, :Q] and F[:, -Q:]).
+        """
+        x = np.ascontiguousarray(self.features.numpy().astype(np.float32))
+        n, d = x.shape
+        norms = np.linalg.norm(x, axis=1)
+        assert np.allclose(norms, 1.0, atol=1e-3), 'expects L2-normalised features'
 
+        index_l2 = faiss.IndexFlatL2(d)
+        index_l2.add(x)
+        # unit vectors: ||a-b||^2 = 2 - 2<a,b>, so furthest = smallest <a,b> = largest <-a,b>
+        index_ip = faiss.IndexFlatIP(d)
+        index_ip.add(x)
 
-        d = features.shape[1]
-        index = faiss.IndexFlatL2(d)
-        index.add(features)
-        xq = np.random.random(d)
-        _, ids = index.search(xq.reshape(1, -1).astype(np.float32), len(features))
-        sz = ids.shape[1]
-        k_furthest_neighbours = ids.reshape(sz, 1)[::-1]
-        k_nearest_neighbours = ids[:, :].reshape(sz, 1)
+        k_nearest = np.empty((n, topk), dtype=np.int64)
+        k_furthest = np.empty((n, topk), dtype=np.int64)
+        for s0 in range(0, n, chunk):
+            q = x[s0:s0 + chunk]
+            ids_self = np.arange(s0, s0 + q.shape[0])
+            _, nn = index_l2.search(q, topk + 1)
+            for r in range(q.shape[0]):            # drop self (may not be first when duplicates exist)
+                row = nn[r][nn[r] != ids_self[r]]
+                k_nearest[s0 + r] = row[:topk]
+            _, fn = index_ip.search(-q, topk)       # most distant first
+            k_furthest[s0:s0 + q.shape[0]] = fn[:, ::-1]  # last column = furthest
+            print('Mine neighbours [%d/%d]' % (min(s0 + chunk, n), n))
 
-        return k_furthest_neighbours, k_nearest_neighbours
+        return k_furthest, k_nearest
 
 
     def reset(self):
