@@ -138,17 +138,16 @@ def classification_evaluate(predictions):
         entropy_loss = entropy(torch.mean(probs, dim=0), input_as_probabilities=True).item()
 
         # Consistency loss
-        similarity = torch.matmul(probs, probs.t())
+        # only the (anchor, neighbour) entries are needed; the full N x N matmul needs TBs at stride 1
         neighbors = neighbors.contiguous().view(-1)
         anchors = org_anchors.contiguous().view(-1)
-        similarity = similarity[anchors, neighbors]
+        similarity = (probs[anchors] * probs[neighbors]).sum(dim=1)
         ones = torch.ones_like(similarity)
         consistency_loss = F.binary_cross_entropy(similarity, ones).item()
 
-        similarity = torch.matmul(probs, probs.t())
         fneighbors = fneighbors.contiguous().view(-1)
         anchors = org_anchors.contiguous().view(-1)
-        similarity = similarity[anchors, fneighbors]
+        similarity = (probs[anchors] * probs[fneighbors]).sum(dim=1)
         ones = torch.ones_like(similarity)
         inconsistency_loss = F.binary_cross_entropy(similarity, ones).item()
 
